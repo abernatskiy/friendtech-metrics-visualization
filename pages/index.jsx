@@ -1,18 +1,14 @@
 import Head from 'next/head'
 
+import Layout from '../components/layout'
+
 export default function Home() {
 	return (
-		<div className="place-content-center">
-			<Head>
-				<title>Dopex data dashboard</title>
-				<link rel="icon" href="/favicon.ico" />
-			</Head>
-
-			<main className="flex flex-col items-center">
-				<h1 className="text-4xl max-w-2xl">
-					Dopex data dashboard
-				</h1>
-
+		<Layout>
+		<Head>
+			<title>Dopex data dashboard</title>
+			<link rel="icon" href="/favicon.ico" />
+		</Head>
 				<div className="flex flex-wrap max-w-2xl justify-center">
 					<a href="https://nextjs.org/docs" className="border-2 border-black basis-1/2">
 						<h3>Documentation &rarr;</h3>
@@ -34,7 +30,6 @@ export default function Home() {
 						<p>Instantly deploy your Next.js site to a public URL with Vercel.</p>
 					</a>
 				</div>
-			</main>
-		</div>
+		</Layout>
 	)
 }
