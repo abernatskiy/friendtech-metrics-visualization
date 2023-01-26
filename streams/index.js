@@ -1,3 +1,4 @@
 import * as rdpx from './rdpx'
+import * as options from './options'
 
-export const streamConfigs = { rdpx }
+export const streamConfigs = { rdpx, options }
