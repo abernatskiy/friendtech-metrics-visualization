@@ -1,5 +1,10 @@
+import dynamic from 'next/dynamic'
 import '../styles/global.css'
 
-export default function App({ Component, pageProps }) {
+function App({ Component, pageProps }) {
   return <Component {...pageProps} />
 }
+
+export default dynamic(() => Promise.resolve(App), {
+	ssr: false,
+})
