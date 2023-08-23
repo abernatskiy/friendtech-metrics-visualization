@@ -3,7 +3,7 @@ import Head from 'next/head'
 import Layout from '../components/layout'
 import Multichart from '../components/multichart'
 
-import { title, streamConfigs } from '../streams'
+import { url, title, streamConfigs } from '../streams'
 
 export default function Home() {
 	const streams = Object.keys(streamConfigs)
@@ -16,14 +16,14 @@ export default function Home() {
 						<title>{`${title} - Overview`}</title>
 						<link rel="icon" href="/favicon.ico" />
 					</Head>
-					<Multichart chartDefinitions={[...Object.keys(streamConfigs).map(k => (streamConfigs[k].mainChart()))]}/>
+					<Multichart url={url} chartDefinitions={[...Object.keys(streamConfigs).map(k => (streamConfigs[k].mainChart()))]}/>
 				</> :
 				<>
 					<Head>
 						<title>{`${title} - ${streams[0]}`}</title>
 						<link rel="icon" href="/favicon.ico" />
 					</Head>
-					<Multichart chartDefinitions={streamConfigs[streams[0]].allCharts.map(cc => cc())}/>
+					<Multichart url={url} chartDefinitions={streamConfigs[streams[0]].allCharts.map(cc => cc())}/>
 				</>
 			}
 		</Layout>
