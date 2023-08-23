@@ -1,5 +1,5 @@
-import * as rdpx from './rdpx'
-import * as options from './options'
+import * as trades from './trades'
 
-export const streamConfigs = { rdpx, options }
-export const title = 'Dopex data'
+export const streamConfigs = { trades }
+export const title = 'Friend.tech data'
+export const url = 'wss://squid.subsquid.io/friendtech-metrics/graphql'

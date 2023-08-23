@@ -1,11 +1,19 @@
-export const description = 'rDPX distribution'
+export const description = 'Trade events'
+
+export const allCharts = [ mainChart, auxChart ]
 
 export function mainChart() {
 	return {
+		id: 'trade-main',
+		query: `
+			subscription { trades(orderBy: block_DESC, limit: 1) {
+				block txnHash
+			}}
+		`,
 		type: 'scatter',
 		data: {
 			datasets: [{
-				label: 'rDPX emission events',
+				label: 'Trade main',
 				data: [{x: 1, y: 2}, {x: 2, y: 1}, {x: 3, y: 2}]
 			}]
 		},
@@ -20,14 +28,18 @@ export function mainChart() {
 	}
 }
 
-export const allCharts = [ mainChart, auxChart ]
-
 function auxChart() {
 	return {
+		id: 'trade-aux',
+		query: `
+			subscription { trades(orderBy: block_DESC, limit: 3) {
+				block txnHash
+			}}
+		`,
 		type: 'scatter',
 		data: {
 			datasets: [{
-				label: 'rDPX top receivers',
+				label: 'Trade aux',
 				data: [ {x: 1, y: 2}, {x: 2, y: 1}, {x: 3, y: 2} ]
 			}]
 		},
