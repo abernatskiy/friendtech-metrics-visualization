@@ -1,35 +1,56 @@
+/* A React-compatible WS client supporting multiple subscriptions */
+
 import * as graphqlWs from 'graphql-ws'
 
+let wsurl
 let client
+let currentSubscriptions = new Map() // subscriptionId -> { query, mostRecentOutput, cleanup }
 
-export function subscribeToTrades() {
-	client = graphqlWs.createClient({url: 'wss://squid.subsquid.io/friendtech-metrics/graphql'})
-	client.subscribe(
-		{
-			query: `
-				subscription { trades(orderBy: block_DESC, limit: 1) {
-					block txnHash
-				}}
-			`,
-		},
-		{
-			next: (data) => { console.log(`Latest trades: ${JSON.stringify(data.data.trades[0])}`) },
-			error: (error) => { console.error('error', error) },
-			complete: () => { console.log('done!') },
+export function getSubscribeFunction(url, subscriptionId, query) {
+	return (callback) => {
+		if (!client) {
+			client = graphqlWs.createClient({url})
+			wsurl = url
 		}
-	)
-	client.subscribe(
-		{
-			query: `
-				subscription { trades(orderBy: block_DESC, limit: 3) {
-					block txnHash
-				}}
-			`,
-		},
-		{
-			next: (data) => { console.log(`Not-so-latest trades: ${JSON.stringify(data.data.trades.slice(-1)[0])}`) },
-			error: (error) => { console.error('error', error) },
-			complete: () => { console.log('done!') },
+		else if (wsurl !== url) {
+			console.error('error: multiple WebSocket connections are not yet supported')
+			return undefined
 		}
-	)
+
+		currentSubscriptions.set(subscriptionId, { query })
+		const cleanup = client.subscribe({ query }, {
+			next: (data) => {
+				console.log(`got new data for ${subscriptionId}`)
+				currentSubscriptions.get(subscriptionId).mostRecentOutput = data
+				callback()
+			},
+			complete: () => {
+				console.log(`all data received for ${subscriptionId}`)
+			},
+			error: (error) => {
+				console.error('error:', error)
+			},
+		})
+		currentSubscriptions.get(subscriptionId).cleanup = cleanup
+
+		return () => {
+			currentSubscriptions.get(subscriptionId).cleanup()
+			currentSubscriptions.delete(subscriptionId)
+			if (currentSubscriptions.size === 0) {
+				client.dispose()
+				client = undefined
+				wsurl = undefined
+			}
+		}
+	}
+}
+
+export function getGetSnapshotFunction(subscriptionId) {
+	return () => {
+		if (!currentSubscriptions.has(subscriptionId)) {
+			console.error('error:', `snapshot of ${subscriptionId} requested before the creation of the subscription`)
+			return undefined
+		}
+		return currentSubscriptions.get(subscriptionId).mostRecentOutput
+	}
 }
