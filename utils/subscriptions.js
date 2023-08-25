@@ -9,7 +9,10 @@ let currentSubscriptions = new Map() // subscriptionId -> { query, mostRecentOut
 export function getSubscribeFunction(url, subscriptionId, query) {
 	return (callback) => {
 		if (!client) {
-			client = graphqlWs.createClient({url})
+			client = graphqlWs.createClient({
+				url,
+				shouldRetry: () => true,
+			})
 			wsurl = url
 		}
 		else if (wsurl !== url) {
@@ -20,7 +23,7 @@ export function getSubscribeFunction(url, subscriptionId, query) {
 		currentSubscriptions.set(subscriptionId, { query })
 		const cleanup = client.subscribe({ query }, {
 			next: (data) => {
-				console.log(`got new data for ${subscriptionId}`)
+				// console.log(`got new data for ${subscriptionId}`)
 				currentSubscriptions.get(subscriptionId).mostRecentOutput = data
 				callback()
 			},
@@ -48,7 +51,7 @@ export function getSubscribeFunction(url, subscriptionId, query) {
 export function getGetSnapshotFunction(subscriptionId) {
 	return () => {
 		if (!currentSubscriptions.has(subscriptionId)) {
-			console.error('error:', `snapshot of ${subscriptionId} requested before the creation of the subscription`)
+			// console.error('error:', `snapshot of ${subscriptionId} requested before the creation of the subscription`)
 			return undefined
 		}
 		return currentSubscriptions.get(subscriptionId).mostRecentOutput
