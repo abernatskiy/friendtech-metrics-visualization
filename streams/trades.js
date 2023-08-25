@@ -5,51 +5,75 @@ export const allCharts = [ mainChart, auxChart ]
 export function mainChart() {
 	return {
 		id: 'trade-main',
-		query: `
+		type: 'scatter',
+//		className: 'w-[2000px]',
+
+		query: () => (`
 			subscription { trades(orderBy: block_DESC, limit: 1) {
 				block txnHash
 			}}
-		`,
-		type: 'scatter',
-		data: {
-			datasets: [{
-				label: 'Trade main',
-				data: [{x: 1, y: 2}, {x: 2, y: 1}, {x: 3, y: 2}]
-			}]
+		`),
+
+		data: (rawData) => {
+			return rawData ?
+				{
+					datasets: [{
+						label: 'Trade main',
+						data: [{x: 1, y: 2}, {x: 2, y: 1}, {x: 3, y: 2}]
+					}]
+				} : {
+					datasets: [{
+						label: 'Trade main',
+						data: []
+					}]
+				}
 		},
-		options: {
+
+		options: () => ({
 			scales: {
 				x: { type: 'linear' },
 				y: { type: 'linear' }
 			},
 			plugins: {}
-		},
-		className: 'w-[1000px]'
+		}),
+
 	}
 }
 
 function auxChart() {
 	return {
 		id: 'trade-aux',
-		query: `
-			subscription { trades(orderBy: block_DESC, limit: 3) {
-				block txnHash
-			}}
-		`,
 		type: 'scatter',
-		data: {
-			datasets: [{
-				label: 'Trade aux',
-				data: [ {x: 1, y: 2}, {x: 2, y: 1}, {x: 3, y: 2} ]
-			}]
+//		className: 'w-[1000px]',
+
+		query: () => (`
+			subscription { trades(orderBy: block_DESC, limit: 20) {
+				block ethAmount
+			}}
+		`),
+
+		data: (rawData) => {
+//			console.log(rawData)
+			return rawData ?
+				{
+					datasets: [{
+						label: 'Trade aux',
+						data: rawData.data.trades.map( ({ block, ethAmount }) => ({x: block, y: ethAmount}))
+					}]
+				} : {
+					datasets: [{
+						label: 'Trade aux',
+						data: []
+					}]
+				}
 		},
-		options: {
+
+		options: () => ({
 			scales: {
 				x: { type: 'linear' },
 				y: { type: 'linear' }
 			},
 			plugins: {}
-		},
-		className: 'w-[1000px]'
+		}),
 	}
 }
