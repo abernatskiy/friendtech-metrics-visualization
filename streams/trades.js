@@ -75,5 +75,19 @@ function auxChart() {
 			},
 			plugins: {}
 		}),
+
+		controls: [
+			{
+				id: 'numberOfSamples',
+				type: 'dropdown',
+				updateChartOnChange: true,
+				options: [
+					{ name: '10' },
+					{ name: '20' },
+					{ name: '40' }
+				],
+				default: 20
+			},
+		],
 	}
 }
