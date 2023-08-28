@@ -9,7 +9,7 @@ import { Dropdown } from 'primereact/dropdown'
 function getInitialControlsState(controlsDefinition) {
 	const out = {}
 	for (let ctrl of controlsDefinition) {
-		if (ctrl.type === 'listBox') {
+		if (ctrl.type === 'dropdown') {
 			out[ctrl.id] = ctrl.default
 		}
 	}
@@ -29,8 +29,6 @@ export default function Livechart({ url, chartDefinition }) {
 	const getSnapshot = getGetSnapshotFunction(chartDefinition.id)
 	const data = useSyncExternalStore(subscribe, getSnapshot)
 
-    const [selectedCity, setSelectedCity] = useState(null);
-
 	return (
 		<>
 		<Chart
@@ -42,10 +40,13 @@ export default function Livechart({ url, chartDefinition }) {
 		{controlsDefinition.map((cd) => cd.type === 'dropdown' ? (
 			<div className="card flex justify-content-center" key={cd.id}>
 				<Dropdown
-					value={selectedCity}
-					onChange={(e) => setSelectedCity(e.value)}
+					value={controls[cd.id]}
+					onChange={(e) => {
+						let newControls = structuredClone(controls)
+						newControls[cd.id] = e.value
+						setControls(newControls)
+					}}
 					options={cd.options}
-					optionLabel="name"
 					placeholder="Select a value"
 					className="w-full md:w-14rem"
 				/>

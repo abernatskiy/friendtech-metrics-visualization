@@ -80,12 +80,7 @@ function auxChart() {
 			{
 				id: 'numberOfSamples',
 				type: 'dropdown',
-				updateChartOnChange: true,
-				options: [
-					{ name: '10' },
-					{ name: '20' },
-					{ name: '40' }
-				],
+				options: [10, 20, 40],
 				default: 20
 			},
 		],
