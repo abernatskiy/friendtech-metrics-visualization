@@ -1,10 +1,8 @@
 import { useSyncExternalStore, useCallback, useState } from 'react'
-import { Chart as ChartJS } from 'chart.js/auto'
-import { Chart } from 'react-chartjs-2'
+import { Chart } from 'primereact/chart'
+import { Dropdown } from 'primereact/dropdown'
 
 import { getSubscribeFunction, getGetSnapshotFunction } from '../utils/subscriptions'
-
-import { Dropdown } from 'primereact/dropdown'
 
 function getInitialControlsState(controlsDefinition) {
 	const out = {}
