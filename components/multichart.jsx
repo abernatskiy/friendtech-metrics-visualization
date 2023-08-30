@@ -1,4 +1,4 @@
-import Livechart from './livechart'
+import ControlledChart from './controlledChart'
 
 export default function Multichart({ url, chartDefinitions }) {
 	let k = 0
@@ -7,7 +7,7 @@ export default function Multichart({ url, chartDefinitions }) {
 			{
 				chartDefinitions.map(cd => (
 					<div className={cd.className} key={k++}>
-						<Livechart url={url} chartDefinition={cd} />
+						<ControlledChart url={url} chartDefinition={cd} />
 					</div>
 				))
 			}
