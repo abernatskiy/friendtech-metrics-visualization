@@ -1,6 +1,6 @@
 export const description = 'Trade events'
 
-export const allCharts = [ mainChart, auxChart ]
+export const allCharts = [ auxChart ]
 
 export function mainChart() {
 	return {
@@ -47,9 +47,11 @@ function auxChart() {
 //		className: 'w-[1000px]',
 
 		query: () => (`
-			subscription { trades(orderBy: block_DESC, limit: 20) {
-				block ethAmount
-			}}
+			subscription {
+				volumeByBlocks(limit: 10, orderBy: block_DESC) {
+					block totalEthAmount
+				}
+			}
 		`),
 
 		data: (rawData) => {
@@ -57,12 +59,12 @@ function auxChart() {
 			return rawData ?
 				{
 					datasets: [{
-						label: 'Trade aux',
-						data: rawData.data.trades.map( ({ block, ethAmount }) => ({x: block, y: ethAmount}))
+						label: 'Total eth volume',
+						data: rawData.data.volumeByBlocks.map( ({ block, totalEthAmount }) => ({x: block, y: totalEthAmount})).reverse()
 					}]
 				} : {
 					datasets: [{
-						label: 'Trade aux',
+						label: 'Total eth volume',
 						data: []
 					}]
 				}
