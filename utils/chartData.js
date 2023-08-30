@@ -1,20 +1,45 @@
-import { useSyncExternalStore, useCallback, useState, useRef } from 'react'
-import { Chart } from 'react-chartjs-2'
-import { Chart as ChartJS } from 'chart.js/auto'
-//import { Chart } from 'primereact/chart'
-import { Dropdown } from 'primereact/dropdown'
+function pointsEqual(p0, p1) {
+	return p0.x === p1.x && p0.y === p1.y
+}
 
-import { getTail } from '../utils/chartData'
-import { getSubscribeFunction, getGetSnapshotFunction } from '../utils/subscriptions'
+/**
+ * A function that cuts a "tailful" array of data that
+ * shifted beyond the state represented by the "tailless"
+ * array. If the arrays align, any extra data present in
+ * the tailful array is returned; otherwise the function
+ * returns null.
+ */
+export function getTail(tailless, tailful) {
+	if (tailful.length === 0) {
+//		console.log('empty tailful -> null')
+		return null
+	}
+	if (tailless.length === 0) {
+		return tailful
+	}
 
-function getInitialControlsState(controlsDefinition) {
-	const out = {}
-	for (let ctrl of controlsDefinition) {
-		if (ctrl.type === 'dropdown') {
-			out[ctrl.id] = ctrl.default
+	let i
+	let j = 0
+	for (i=0; i<tailless.length; i++) {
+		if (pointsEqual(tailful[j], tailless[i])) {
+			break
 		}
 	}
-	return out
+	if (i === tailless.length) {
+//		console.log('end of tailless -> null')
+		return null
+	}
+
+	for (; i<tailless.length; i++, j++) {
+		if ( !tailful[j] ) {
+			return []
+		}
+		if ( !pointsEqual(tailless[i], tailful[j]) ) {
+//			console.log('alignment check failed -> null')
+			return null
+		}
+	}
+	return tailful.slice(j)
 }
 
 export default function Livechart({ url, chartDefinition }) {
