@@ -8,4 +8,4 @@ Live visualization for [Friend.tech](https://www.friend.tech) data.
 Known issues
 ------------
 
-* `TimeSeries` component cannot decrease its number of points through controls except when the `targetNumberOfPoints` is explicitly defined.
+* `TimeSeries` component cannot decrease its number of points through controls except when the `targetNumberOfPoints` callback is explicitly defined by the chart.
