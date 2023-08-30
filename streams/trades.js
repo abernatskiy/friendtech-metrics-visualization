@@ -46,6 +46,8 @@ function auxChart() {
 		type: 'scatter',
 //		className: 'w-[1000px]',
 
+//		accumulatePoints: 20,
+
 		query: () => (`
 			subscription {
 				volumeByBlocks(limit: 10, orderBy: block_DESC) {

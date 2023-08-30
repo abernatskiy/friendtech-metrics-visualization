@@ -72,21 +72,24 @@ export default function Livechart({ url, chartDefinition }) {
 	if (data) {
 		const newChartData = chartDefinition.data(data)
 		const tail = getTail(chartData.datasets[0].data, newChartData.datasets[0].data)
-		console.log('particular datas:', JSON.stringify([chartData.datasets[0].data, newChartData.datasets[0].data]))
-		console.log('tail:', tail)
+		// console.log('particular datas:', JSON.stringify([chartData.datasets[0].data, newChartData.datasets[0].data]))
+		// console.log('tail:', tail)
 		if (tail) {
 			console.log('pushing the tail:', tail)
+			const targetLength = chartDefinition.accumulatePoints ?? chartData.datasets[0].data.length
+			if (targetLength>0 && chartData.datasets[0].data.length+tail.length>targetLength) {
+				chartData.datasets[0].data.splice(0, chartData.datasets[0].data.length+tail.length-targetLength)
+			}
 			chartData.datasets[0].data.push(...tail)
-			console.log('new length of dataset0:', chartData.datasets[0].data.length)
+			// console.log('new length of dataset0:', chartData.datasets[0].data.length)
 			chartRef.current.update()
 		}
 		else {
-//			console.log('datas', chartData, newChartData)
-			console.log('replacing dataset')
-//			setChartData(newChartData)
+			console.log('replacing dataset:', JSON.stringify([chartData, newChartData]))
 			chartData.datasets[0].data.length = 0
 			chartData.datasets[0].data.push(...newChartData.datasets[0].data)
 			chartRef.current.update()
+			// setChartData(newChartData)
 		}
 	}
 
