@@ -60,7 +60,7 @@ export default function Livechart({ url, chartDefinition }) {
 	// console.log('controls are', controls)
 
 	const id = chartDefinition.id
-	const query = chartDefinition.query()
+	const query = chartDefinition.query(controls)
 
 	const subscribe = useCallback(getSubscribeFunction(url, id, query), [url, id, query])
 	const getSnapshot = getGetSnapshotFunction(chartDefinition.id)
@@ -76,12 +76,13 @@ export default function Livechart({ url, chartDefinition }) {
 		// console.log('tail:', tail)
 		if (tail) {
 			console.log('pushing the tail:', tail)
-			const targetLength = chartDefinition.accumulatePoints ?? chartData.datasets[0].data.length
+			const configTargetLength = chartDefinition.targetNumberOfPoints && chartDefinition.targetNumberOfPoints(controls)
+			const targetLength = configTargetLength ?? chartData.datasets[0].data.length
 			if (targetLength>0 && chartData.datasets[0].data.length+tail.length>targetLength) {
 				chartData.datasets[0].data.splice(0, chartData.datasets[0].data.length+tail.length-targetLength)
 			}
 			chartData.datasets[0].data.push(...tail)
-			// console.log('new length of dataset0:', chartData.datasets[0].data.length)
+			console.log('new length of dataset0:', chartData.datasets[0].data.length)
 			chartRef.current.update()
 		}
 		else {

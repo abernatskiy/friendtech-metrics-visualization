@@ -46,11 +46,11 @@ function auxChart() {
 		type: 'scatter',
 //		className: 'w-[1000px]',
 
-//		accumulatePoints: 20,
+//		targetNumberOfPoints: (controls) => 2*controls.numberOfSamples,
 
-		query: () => (`
+		query: (controls) => (`
 			subscription {
-				volumeByBlocks(limit: 10, orderBy: block_DESC) {
+				volumeByBlocks(limit: ${controls.numberOfSamples}, orderBy: block_DESC) {
 					block totalEthAmount
 				}
 			}
