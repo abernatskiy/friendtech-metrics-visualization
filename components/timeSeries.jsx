@@ -6,7 +6,7 @@ import { getTail } from '../utils/chartData'
 
 export default function TimeSeries({ data, controls, chartDefinition }) {
 	const chartRef = useRef()
-	const [ chartData, setChartData ] = useState({ datasets: [ { label: 'Tot eth vol', data: [] } ]})
+	const [ chartData, setChartData ] = useState(chartDefinition.data(null))
 
 	if (data) {
 		const newChartData = chartDefinition.data(data)
