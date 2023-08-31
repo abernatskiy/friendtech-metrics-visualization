@@ -46,12 +46,13 @@ function auxChart() {
 		type: 'scatter',
 //		className: 'w-[1000px]',
 
-//		targetNumberOfPoints: (controls) => 2*controls.numberOfSamples,
+		targetNumberOfPoints: (controls) => controls.numberOfSamples,
 
+		// the correct spelling is "subscription"
 		query: (controls) => (`
-			subscription {
-				volumeByBlocks(limit: ${controls.numberOfSamples}, orderBy: block_DESC) {
-					block totalEthAmount
+			query {
+				blockStats(limit: ${controls.numberOfSamples}, orderBy: block_DESC) {
+					block ethVolume
 				}
 			}
 		`),
@@ -62,7 +63,7 @@ function auxChart() {
 				{
 					datasets: [{
 						label: 'Total eth volume',
-						data: rawData.data.volumeByBlocks.map( ({ block, totalEthAmount }) => ({x: block, y: totalEthAmount})).reverse()
+						data: rawData.data.blockStats.map( ({ block, ethVolume }) => ({x: block, y: ethVolume})).reverse()
 					}]
 				} : {
 					datasets: [{
