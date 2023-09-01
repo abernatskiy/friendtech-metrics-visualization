@@ -1,42 +1,58 @@
+import { createOrIncrementMapField } from '../utils/misc'
+import { weiStringToEthAmount } from '../utils/converters'
+
 export const description = 'Trade events'
 
-export const allCharts = [ auxChart ]
+export const allCharts = [ mainChart, auxChart ]
 
 export function mainChart() {
 	return {
 		id: 'trade-main',
-		type: 'scatter',
+		type: 'doughnut',
 //		className: 'w-[2000px]',
 
 		query: () => (`
-			subscription { trades(orderBy: block_DESC, limit: 1) {
-				block txnHash
-			}}
+			subscription {
+				trades(limit: 10, orderBy: block_DESC) {
+					ethAmount subject
+				}
+			}
 		`),
 
 		data: (rawData) => {
-			return rawData ?
-				{
-					datasets: [{
-						label: 'Trade main',
-						data: [{x: 1, y: 2}, {x: 2, y: 1}, {x: 3, y: 2}]
-					}]
-				} : {
-					datasets: [{
-						label: 'Trade main',
-						data: []
-					}]
-				}
+			if (!rawData) {
+				return {labels: [], datasets: []}
+			}
+
+			const histogram = new Map()
+			for (let tr of rawData.data.trades) {
+				createOrIncrementMapField(histogram, tr.subject, weiStringToEthAmount(tr.ethAmount))
+			}
+
+			const popularSubjects = new Set([...histogram.entries()].toSorted((a, b) => b[1]-a[1]).splice(0, 5).map(e => e[0]))
+
+			const processedHistogram = new Map()
+			for (let ps of popularSubjects) {
+				processedHistogram.set(ps, histogram.get(ps))
+				histogram.delete(ps)
+			}
+			processedHistogram.set('others', [...histogram.values()].reduce((acc, val) => acc + val, 0))
+			return {
+				labels: [...processedHistogram.keys()],
+				datasets: [{
+					label: 'Subjects of last 100 trades',
+					data: [...processedHistogram.values()],
+				}]
+			}
 		},
 
 		options: () => ({
-			scales: {
-				x: { type: 'linear' },
-				y: { type: 'linear' }
-			},
-			plugins: {}
+			plugins: {
+				legend: {
+					display: false
+				}
+			}
 		}),
-
 	}
 }
 
