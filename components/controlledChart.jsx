@@ -1,10 +1,10 @@
 import { useSyncExternalStore, useCallback, useState, useRef } from 'react'
-import { Chart } from 'react-chartjs-2'
-import { Chart as ChartJS } from 'chart.js/auto'
 import { Dropdown } from 'primereact/dropdown'
 
 import { getSubscribeFunction, getGetSnapshotFunction } from '../utils/subscriptions'
 import TimeSeries from './timeSeries'
+import DoughnutOrPie from './doughnutOrPie'
+import Text from './text'
 
 function getInitialControlsState(controlsDefinition) {
 	const out = {}
@@ -14,6 +14,46 @@ function getInitialControlsState(controlsDefinition) {
 		}
 	}
 	return out
+}
+
+function renderChart(data, controls, chartDefinition) {
+	switch (chartDefinition.type) {
+		case 'line':
+		case 'scatter':
+			return <TimeSeries data={data} controls={controls} chartDefinition={chartDefinition}/>
+		case 'doughnut':
+		case 'pie':
+			return <DoughnutOrPie data={data} controls={controls} chartDefinition={chartDefinition}/>
+		case 'text':
+			return <Text data={data} controls={controls} chartDefinition={chartDefinition}/>
+		default:
+			console.error(`Unsupported chart type ${chartDefiniton.type}`)
+			return null
+	}
+}
+
+function renderControl(controls, setControls, controlDefinition) {
+	switch (controlDefinition.type) {
+		case 'dropdown':
+			return (
+				<div className="card flex justify-content-center" key={controlDefinition.id}>
+					<Dropdown
+						value={controls[controlDefinition.id]}
+						onChange={(e) => {
+							let newControls = structuredClone(controls)
+							newControls[controlDefinition.id] = e.value
+							setControls(newControls)
+						}}
+						options={controlDefinition.options}
+						placeholder="Select a value"
+						className="w-full md:w-14rem"
+					/>
+				</div>
+			)
+		default:
+			console.error(`Unsupported control type ${controlDefinition.type}`)
+			return null
+	}
 }
 
 export default function ControlledChart({ url, chartDefinition }) {
@@ -29,26 +69,8 @@ export default function ControlledChart({ url, chartDefinition }) {
 
 	return (
 		<>
-		<TimeSeries
-			data={data}
-			controls={controls}
-			chartDefinition={chartDefinition}
-		/>
-		{controlsDefinition.map((cd) => cd.type === 'dropdown' ? (
-			<div className="card flex justify-content-center" key={cd.id}>
-				<Dropdown
-					value={controls[cd.id]}
-					onChange={(e) => {
-						let newControls = structuredClone(controls)
-						newControls[cd.id] = e.value
-						setControls(newControls)
-					}}
-					options={cd.options}
-					placeholder="Select a value"
-					className="w-full md:w-14rem"
-				/>
-			</div>
-		) : (<></>))}
+		{renderChart(data, controls, chartDefinition)}
+		{controlsDefinition.map((cd) => renderControl(controls, setControls, cd))}
 		</>
 	)
 }
