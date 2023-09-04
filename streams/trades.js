@@ -3,9 +3,9 @@ import { weiStringToEthAmount } from '../utils/converters'
 
 export const description = 'Trade events'
 
-export const allCharts = [ mainChart, auxChart, scalarChart ]
+export const allCharts = [ scalars, recentVolume, recentSubjects, allTimeSubjects, volumeTimeSeries ]
 
-export function scalarChart() {
+function scalars() {
 	return {
 		id: 'scalars',
 		type: 'text',
@@ -30,7 +30,11 @@ export function scalarChart() {
 					`trades: ${ats.trades}`,
 					`subjects: ${ats.numSubjects}`,
 					`ETH volume: ${weiStringToEthAmount(ats.ethVolume)}`,
+					`buys ETH: ${weiStringToEthAmount(ats.ethBuyVolume)}`,
+					`sells ETH: ${weiStringToEthAmount(ats.ethSellVolume)}`,
 					`share volume: ${ats.shareVolume}`,
+					`buys shares: ${ats.shareBuyVolume}`,
+					`sells shares: ${ats.shareSellVolume}`,
 					`protocol ETH: ${weiStringToEthAmount(ats.protocolEthTotal)}`,
 					`subject ETH: ${weiStringToEthAmount(ats.subjectEthTotal)}`
 				]
@@ -39,11 +43,11 @@ export function scalarChart() {
 	}
 }
 
-export function mainChart() {
+function recentSubjects() {
 	return {
-		id: 'trade-main',
+		id: 'subjects-recent',
 		type: 'doughnut',
-		className: 'w-[500px]',
+		className: 'w-[450px]',
 		title: 'Subjects of last 10 trades',
 
 		query: () => (`
@@ -71,7 +75,7 @@ export function mainChart() {
 				processedHistogram.set(ps, histogram.get(ps))
 				histogram.delete(ps)
 			}
-			processedHistogram.set('others', [...histogram.values()].reduce((acc, val) => acc + val, 0))
+			processedHistogram.set('everyone else', [...histogram.values()].reduce((acc, val) => acc + val, 0))
 			return {
 				labels: [...processedHistogram.keys()],
 				datasets: [{
@@ -83,16 +87,17 @@ export function mainChart() {
 		options: () => ({
 			plugins: {
 				legend: {
-					display: false
+					display: true,
+					position: 'bottom'
 				}
 			}
 		}),
 	}
 }
 
-function auxChart() {
+function recentVolume() {
 	return {
-		id: 'trade-aux',
+		id: 'volume-recent',
 		type: 'line',
 		className: 'w-[500px] h-[500px]',
 		title: 'Trading volume in last few blocks',
@@ -148,8 +153,96 @@ function auxChart() {
 				title: 'Blocks:',
 				type: 'dropdown',
 				options: [10, 20, 40],
-				default: 20
+				default: 10
 			},
 		],
+	}
+}
+
+function volumeTimeSeries() {
+	return {
+		id: 'volume-full',
+		type: 'line',
+		className: 'w-[500px] h-[500px]',
+		title: 'All time trading volume',
+
+		query: (controls) => (`
+			subscription {
+				blockStats(limit: 100, orderBy: block_DESC) {
+					block ethVolume
+				}
+			}
+		`),
+
+		data: (rawData) => {
+			return rawData ?
+				{
+					datasets: [{
+						data: rawData.data.blockStats.map( ({ block, ethVolume }) => ({x: block, y: weiStringToEthAmount(ethVolume)})).reverse()
+					}]
+				} : {
+					datasets: [{
+						data: []
+					}]
+				}
+		},
+
+		options: () => ({
+			scales: {
+				x: { type: 'linear' },
+				y: {
+					type: 'linear',
+					title: {
+						display: true,
+						text: 'ETH'
+					}
+				}
+			},
+			plugins: {
+				legend: {
+					display: false
+				}
+			},
+			aspectRatio: 1.62
+		}),
+	}
+}
+
+function allTimeSubjects() {
+	return {
+		id: 'subjects-all-time',
+		type: 'doughnut',
+		className: 'w-[400px]',
+		title: 'Top five subjects by ETH volume, all time',
+
+		query: () => (`
+			subscription {
+				subjects(limit: 5, orderBy: totalEthVolume_DESC) {
+					totalEthVolume address
+				}
+			}
+		`),
+
+		data: (rawData) => {
+			if (!rawData) {
+				return {labels: [], datasets: []}
+			}
+
+			return {
+				labels: [...rawData.data.subjects.map(s => s.address)],
+				datasets: [{
+					data: [...rawData.data.subjects.map(s => weiStringToEthAmount(s.totalEthVolume))],
+				}]
+			}
+		},
+
+		options: () => ({
+			plugins: {
+				legend: {
+					display: true,
+					position: 'bottom'
+				}
+			}
+		}),
 	}
 }
