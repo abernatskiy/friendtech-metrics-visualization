@@ -3,13 +3,48 @@ import { weiStringToEthAmount } from '../utils/converters'
 
 export const description = 'Trade events'
 
-export const allCharts = [ mainChart, auxChart ]
+export const allCharts = [ mainChart, auxChart, scalarChart ]
+
+export function scalarChart() {
+	return {
+		id: 'scalars',
+		type: 'text',
+		title: 'All time stats',
+		query: () => (`
+			subscription {
+				allTimeStatsById(id: "0") {
+					trades numSubjects
+					ethBuyVolume ethSellVolume ethVolume
+					shareBuyVolume shareSellVolume shareVolume
+					protocolEthTotal subjectEthTotal
+				}
+			}
+		`),
+		data: (rawData) => {
+			if (!rawData) {
+				return { text: [''] }
+			}
+			const ats = rawData.data.allTimeStatsById
+			return {
+				text: [
+					`trades: ${ats.trades}`,
+					`subjects: ${ats.numSubjects}`,
+					`ETH volume: ${weiStringToEthAmount(ats.ethVolume)}`,
+					`share volume: ${ats.shareVolume}`,
+					`protocol ETH: ${weiStringToEthAmount(ats.protocolEthTotal)}`,
+					`subject ETH: ${weiStringToEthAmount(ats.subjectEthTotal)}`
+				]
+			}
+		}
+	}
+}
 
 export function mainChart() {
 	return {
 		id: 'trade-main',
 		type: 'doughnut',
-//		className: 'w-[2000px]',
+		className: 'w-[500px]',
+		title: 'Subjects of last 10 trades',
 
 		query: () => (`
 			subscription {
@@ -40,7 +75,6 @@ export function mainChart() {
 			return {
 				labels: [...processedHistogram.keys()],
 				datasets: [{
-					label: 'Subjects of last 100 trades',
 					data: [...processedHistogram.values()],
 				}]
 			}
@@ -59,14 +93,14 @@ export function mainChart() {
 function auxChart() {
 	return {
 		id: 'trade-aux',
-		type: 'scatter',
-//		className: 'w-[1000px]',
+		type: 'line',
+		className: 'w-[500px] h-[500px]',
+		title: 'Trading volume in last few blocks',
 
 		targetNumberOfPoints: (controls) => controls.numberOfSamples,
 
-		// the correct spelling is "subscription"
 		query: (controls) => (`
-			query {
+			subscription {
 				blockStats(limit: ${controls.numberOfSamples}, orderBy: block_DESC) {
 					block ethVolume
 				}
@@ -78,12 +112,12 @@ function auxChart() {
 			return rawData ?
 				{
 					datasets: [{
-						label: 'Total eth volume',
-						data: rawData.data.blockStats.map( ({ block, ethVolume }) => ({x: block, y: ethVolume})).reverse()
+//						label: 'Total eth volume',
+						data: rawData.data.blockStats.map( ({ block, ethVolume }) => ({x: block, y: weiStringToEthAmount(ethVolume)})).reverse()
 					}]
 				} : {
 					datasets: [{
-						label: 'Total eth volume',
+//						label: 'Total eth volume',
 						data: []
 					}]
 				}
@@ -92,14 +126,26 @@ function auxChart() {
 		options: () => ({
 			scales: {
 				x: { type: 'linear' },
-				y: { type: 'linear' }
+				y: {
+					type: 'linear',
+					title: {
+						display: true,
+						text: 'ETH'
+					}
+				}
 			},
-			plugins: {}
+			plugins: {
+				legend: {
+					display: false
+				}
+			},
+			aspectRatio: 1.62
 		}),
 
 		controls: [
 			{
 				id: 'numberOfSamples',
+				title: 'Blocks:',
 				type: 'dropdown',
 				options: [10, 20, 40],
 				default: 20

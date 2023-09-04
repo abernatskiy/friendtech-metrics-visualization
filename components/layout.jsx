@@ -12,7 +12,7 @@ export default function Layout({ children, currentPageId }) {
 			streams.length>1 ?
 			<>
 				<h1 className="text-4xl max-w-xl">{title}</h1>
-				<div className="flex w-full max-w-2xl justify-between">
+				<div className="flex w-full h-full max-w-2xl justify-between">
 					<Link href="/" className={overviewLinkClass} key='Overview'>Overview</Link>
 					{
 						streams.map(k => (
@@ -25,7 +25,7 @@ export default function Layout({ children, currentPageId }) {
 				<h1 className="text-4xl max-w-xl">{`${title}: ${streamConfigs[streams[0]].description}`}</h1>
 			</>
 		}
-		<main>
+		<main className="w-full h-full">
 			{children}
 		</main>
 		</div>

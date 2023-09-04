@@ -6,11 +6,13 @@ import { arraysAreEqual } from '../utils/misc'
 
 export default function DoughnutOrPie({ data, controls, chartDefinition }) {
 	return (
-		<Chart
-			type={chartDefinition.type}
-			data={chartDefinition.data(data)}
-			options={chartDefinition.options()}
-			plugins={chartDefinition.plugins || []}
-		/>
+		<div className={chartDefinition.className}>
+			<Chart
+				type={chartDefinition.type}
+				data={chartDefinition.data(data)}
+				options={chartDefinition.options()}
+				plugins={chartDefinition.plugins || []}
+			/>
+		</div>
 	)
 }

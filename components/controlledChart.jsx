@@ -36,7 +36,11 @@ function renderControl(controls, setControls, controlDefinition) {
 	switch (controlDefinition.type) {
 		case 'dropdown':
 			return (
-				<div className="card flex justify-content-center" key={controlDefinition.id}>
+				<div className="card flex justify-content-center content-center" key={controlDefinition.id}>
+					{controlDefinition.title ?
+						<div className="flex items-center pr-2"><p>{controlDefinition.title}</p></div> :
+						<></>
+					}
 					<Dropdown
 						value={controls[controlDefinition.id]}
 						onChange={(e) => {
@@ -46,7 +50,7 @@ function renderControl(controls, setControls, controlDefinition) {
 						}}
 						options={controlDefinition.options}
 						placeholder="Select a value"
-						className="w-full md:w-14rem"
+						className=""
 					/>
 				</div>
 			)
@@ -69,8 +73,16 @@ export default function ControlledChart({ url, chartDefinition }) {
 
 	return (
 		<>
+		{chartDefinition.title ?
+			<div className="w-full text-center font-bold text-lg pb-4">
+				{chartDefinition.title}
+			</div> :
+			<></>
+		}
 		{renderChart(data, controls, chartDefinition)}
-		{controlsDefinition.map((cd) => renderControl(controls, setControls, cd))}
+		<div className="flex flex-wrap justify-left">
+			{controlsDefinition.map((cd) => renderControl(controls, setControls, cd))}
+		</div>
 		</>
 	)
 }
