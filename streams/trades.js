@@ -47,7 +47,7 @@ function recentSubjects() {
 	return {
 		id: 'subjects-recent',
 		type: 'doughnut',
-		className: 'w-[450px]',
+		className: 'w-[400px]',
 		title: 'Subjects of last 10 trades',
 
 		query: () => (`
@@ -99,7 +99,7 @@ function recentVolume() {
 	return {
 		id: 'volume-recent',
 		type: 'line',
-		className: 'w-[500px] h-[500px]',
+		className: 'w-[500px]',
 		title: 'Trading volume in last few blocks',
 
 		targetNumberOfPoints: (controls) => controls.numberOfSamples,
@@ -163,7 +163,7 @@ function volumeTimeSeries() {
 	return {
 		id: 'volume-full',
 		type: 'line',
-		className: 'w-[500px] h-[500px]',
+		className: 'w-[500px]',
 		title: 'All time trading volume',
 
 		query: (controls) => (`

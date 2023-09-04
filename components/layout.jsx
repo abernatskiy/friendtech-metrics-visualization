@@ -22,7 +22,7 @@ export default function Layout({ children, currentPageId }) {
 				</div>
 			</> :
 			<>
-				<h1 className="text-4xl max-w-xl">{`${title}: ${streamConfigs[streams[0]].description}`}</h1>
+				<h1 className="text-4xl max-w-xl p-2">{`${title}: ${streamConfigs[streams[0]].description}`}</h1>
 			</>
 		}
 		<main className="w-full h-full">
