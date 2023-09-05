@@ -23,6 +23,7 @@ function renderChart(data, controls, chartDefinition) {
 			return <TimeSeries data={data} controls={controls} chartDefinition={chartDefinition}/>
 		case 'doughnut':
 		case 'pie':
+		case 'bar':
 			return <DoughnutOrPie data={data} controls={controls} chartDefinition={chartDefinition}/>
 		case 'text':
 			return <Text data={data} controls={controls} chartDefinition={chartDefinition}/>

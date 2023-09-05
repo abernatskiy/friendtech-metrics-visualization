@@ -3,7 +3,7 @@ import { weiStringToEthAmount } from '../utils/converters'
 
 export const description = 'Trade events'
 
-export const allCharts = [ scalars, recentVolume, recentSubjects, allTimeSubjects, volumeTimeSeries ]
+export const allCharts = [ scalars, recentVolume, recentSubjects, allTimeSubjects, volumeTimeSeries, allTimeSubjectsByProfit ]
 
 function scalars() {
 	return {
@@ -243,6 +243,60 @@ function allTimeSubjects() {
 					position: 'bottom'
 				}
 			}
+		}),
+	}
+}
+
+function allTimeSubjectsByProfit() {
+	return {
+		id: 'subjects-all-time-profit',
+		type: 'bar',
+		className: 'w-[400px]',
+		title: 'Top five subjects by profit, all time',
+
+		query: () => (`
+			subscription {
+				topSubjects: subjects(limit: 5, orderBy: ultimateSubjectProfit_DESC) {
+					ultimateSubjectProfit address
+				}
+			}
+		`),
+
+		data: (rawData) => {
+			if (!rawData) {
+				return {labels: [], datasets: []}
+			}
+
+			let allSubjects = rawData.data.topSubjects
+
+			return {
+				labels: [...allSubjects.map(s => s.address)],
+				datasets: [{
+					data: [...allSubjects.map(s => weiStringToEthAmount(s.ultimateSubjectProfit))],
+				}]
+			}
+		},
+
+		options: () => ({
+			scales: {
+				x: {
+						display: false
+					// callback: (value, index, ticks) => null
+				},
+				y: {
+					title: {
+						display: true,
+						text: 'ETH'
+					}
+				}
+			},
+			plugins: {
+				legend: {
+					display: false,
+					position: 'bottom'
+				}
+			},
+			aspectRatio: 1.3
 		}),
 	}
 }
